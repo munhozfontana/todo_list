@@ -18,7 +18,19 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _todoController = TextEditingController();
+
   List _toDoList = [];
+
+  void _addTodo() {
+    setState(() {
+      Map<String, dynamic> newTodo = Map();
+      newTodo["title"] = _todoController.text;
+      _todoController.text = "";
+      newTodo["ok"] = false;
+      _toDoList.add(newTodo);
+    });
+  }
 
   Future<File> _getFile() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -56,6 +68,7 @@ class _HomeState extends State<Home> {
               children: <Widget>[
                 Expanded(
                   child: TextField(
+                    controller: _todoController,
                     decoration: InputDecoration(
                       labelText: "Nova Tarefa",
                       labelStyle: TextStyle(color: Colors.blueAccent),
@@ -66,9 +79,31 @@ class _HomeState extends State<Home> {
                   color: Colors.blueAccent,
                   child: Text("ADD"),
                   textColor: Colors.white,
-                  onPressed: () {},
+                  onPressed: _addTodo,
                 ),
               ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.only(top: 10),
+              itemCount: _toDoList.length,
+              itemBuilder: (item, i) {
+                return CheckboxListTile(
+                  title: Text(_toDoList[i]["title"]),
+                  value: _toDoList[i]["ok"],
+                  secondary: CircleAvatar(
+                    child: Icon(
+                      _toDoList[i]["ok"] ? Icons.check : Icons.error,
+                    ),
+                  ),
+                  onChanged: (check) {
+                    setState(() {
+                      _toDoList[i]["ok"] = check;
+                    });
+                  },
+                );
+              },
             ),
           )
         ],
